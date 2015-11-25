@@ -1,0 +1,42 @@
+#!/usr/bin/python -tt
+# vim: set fileencoding=utf-8
+# /ˈfed.ərs/ Pavel Odvody <podvody@redhat.com> 2015 - MIT License
+import argparse, glob, os, re, subprocess, sys
+
+_include = re.compile(r'^\s*#\s*include\s*[<"]+(.*?)[>"]+', re.MULTILINE)
+_search_paths = []
+# paths should be hardcoded
+for pref in ['/usr/include', '/usr/include/python*']:
+  for glb in glob.glob(pref):
+    _search_paths.append(glb)
+
+parser = argparse.ArgumentParser()
+parser.add_argument('files', type=argparse.FileType('r'), nargs='+')
+parser.add_argument('-a', '--arch', default="x86_64")
+args = parser.parse_args()
+
+includes = set()
+for fp in args.files:
+  for m in _include.finditer(fp.read()):
+    includes.add(m.group(1))
+
+packages = set()
+for include in includes:
+  for prefix in _search_paths:  
+    try:
+      out = subprocess.check_output(["dnf", "repoquery", 
+        "-q", # be silent
+        "--latest-limit", "1", # get only latest stuff
+        "--file", os.path.join(prefix, include)])
+    except subprocess.CalledProcessError as cpe:
+      print cpe.message
+      sys.exit(1)
+
+    if out.strip():
+      for ln in out.split('\n'):
+        l = ln.strip()
+        if l and l.endswith(args.arch):
+          packages.add(ln.strip())
+
+for pkg in packages:
+  print pkg
