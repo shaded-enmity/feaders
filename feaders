@@ -1,8 +1,9 @@
 #!/usr/bin/python -tt
 # vim: set fileencoding=utf-8
 # /ˈfed.ərs/ Pavel Odvody <podvody@redhat.com> 2015 - MIT License
-import argparse, glob, os, re, subprocess, sys
+import argparse, glob, json, os, re, subprocess, sys
 
+_ignored = set(json.load(open('glibc-ignored', 'r')))
 _include = re.compile(r'^\s*#\s*include\s*[<"]+(.*?)[>"]+', re.MULTILINE)
 _search_paths = []
 # paths should be hardcoded
@@ -11,14 +12,37 @@ for pref in ['/usr/include', '/usr/include/python*']:
     _search_paths.append(glb)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('files', type=argparse.FileType('r'), nargs='+')
+parser.add_argument('-r', '--root', help='root directory for the files')
 parser.add_argument('-a', '--arch', default="x86_64")
+parser.add_argument('-v', '--verbose', action='store_true')
+parser.add_argument('files', type=argparse.FileType('r'), nargs='?')
 args = parser.parse_args()
 
+if not args.files:
+  if args.verbose:
+    print("-> probing root '{}'".format(args.root))
+  args.files = []
+  for root, dirs, files in os.walk(args.root):
+    for file in files:
+      if file.endswith('c') or file.endswith('h') or file.endswith('cpp'):
+        args.files.append(open(os.path.join(root, file), 'r'))
+
+comps = set()
+for fp in args.files:
+  comps.add(os.path.relpath(fp.name, args.root))
+
+eliminated = set()
 includes = set()
 for fp in args.files:
   for m in _include.finditer(fp.read()):
-    includes.add(m.group(1))
+    inc = m.group(1)
+    if inc in comps or inc in _ignored:
+      if inc not in eliminated:
+        if args.verbose:
+          print("=> include '{}' found in '{}' or is a libc include".format(inc, args.root))
+        eliminated.add(inc)
+    else:
+      includes.add(inc)
 
 packages = set()
 for include in includes:
