@@ -83,7 +83,7 @@ class SqlHandler(object):
     # sepatartor and figure out if we have an exact match
     pkg_ids_matched = [pi for pi in pkg_ids 
                         if ifile in pi[1].split('/')]
-    if app.debug and self._verbose:
+    if self._verbose:
       # figure out the eliminated IDs from the last step
       eliminated = "\n".join([x[0] for x in (set(pkg_ids) - set(pkg_ids_matched))])
       if eliminated:
