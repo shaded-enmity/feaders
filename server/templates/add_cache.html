@@ -1,0 +1,16 @@
+<!doctype html>
+<title>Feaders server - add cache</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div class=page>
+  <h1>Feaders server - add cache</h1>
+  <br />
+  <form action="/refresh_cache" method="get">
+    <div>
+      <div class="spacer"><span class="side">Name:</span><span><input type="text" name="name" /></span></div>
+      <div class="spacer"><span class="side">Relesase: </span><span><input type="text" name="release" /></span></div>
+      <div class="spacer"><span class="side">Arch: </span><span><input type="text" name="arch" /></span></div>
+      <div class="spacer"><span class="side">Type: </span><span><select name="type" /><option value="fedora">Fedora</option><option value="centos">CentOS</option></select></span></div>
+      <div class="topped"><span class="side"></span><span><input id="submit" value="add repository cache" type="submit" /></span></div>
+    </div>
+  </form>
+</div>

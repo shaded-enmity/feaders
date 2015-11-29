@@ -1,0 +1,45 @@
+<!doctype html>
+<title>Feaders server</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script>
+if (!String.prototype.format) {
+    String.prototype.format = function() {
+      var args = arguments;
+      return this.replace(/{(\d+)}/g, function(match, number) { 
+        return typeof args[number] != 'undefined' ? args[number] : match;
+      });
+    };
+}
+
+$(document).ready(function() {
+    $('#reposel').change(function() {
+        var str = "";
+        var obj = null;
+        $("#reposel option:selected").each(function() {
+              str += $( this ).val() + " ";
+        });
+        obj = JSON.parse(str.replace(/'/g, '"'))
+        $("#sf").attr('action', "/get_packages?arch={0}&name={1}&release={2}".format(obj['arch'], obj['name'], obj['release']))
+    });
+});
+</script>
+<div class=page>
+  <h1>Feaders server</h1>
+  <br />
+  <form action="/get_packages?arch=x86_64&name=fedora&release=23" method="POST" id="sf">
+    Includes (one per line): <br />
+    <textarea id="raw_includes" name="raw_includes"></textarea> <br />
+    <div>
+     Select repository: 
+     <select name="repo" id="reposel">
+       {% for entry in cached %}
+         <option value="{{ entry }}"> {{ entry.name }} {{ entry.release }} {{ entry.arch }}</option>
+       {% endfor %}
+     </select>
+     <input type="checkbox" name="include_mode" /> #include mode
+     <input id="submit" type="submit">
+    </div>
+  </form>
+</div>
+<div align="center"><a href="/add_cache">add repository cache</a></div>
