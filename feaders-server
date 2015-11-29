@@ -1,0 +1,96 @@
+#!/usr/bin/python -tt
+# vim: set fileencoding=utf-8
+# /ˈfed.ərs/ Pavel Odvody <podvody@redhat.com> 2015 - MIT License
+from flask import Flask, redirect, request, render_template, url_for
+from feader.repohandler import Repositories, RepoType, RepoHandler
+from feader.sqlhandler import SqlHandler
+import glob
+import json
+import os
+
+app = Flask(__name__, template_folder='server/templates', static_folder='server/static')
+
+def get_args():
+  arch = request.args.get('arch', Repositories.DEFAULT_ARCH)
+  name = request.args.get('name', Repositories.DEFAULT_NAME)
+  release =  request.args.get('release', Repositories.DEFAULT_RELEASE)
+  return arch, name, release
+
+@app.route("/get_packages", methods=['POST'])
+def get_includes():
+  verbose = 'verbose' in request.args
+
+  arch, name, release = get_args()
+  base = os.path.join('cache', name, release, arch)
+
+  # glob for db files, the glob will actually match multiple files
+  # only for CentOS repositories, where the content is split 
+  # between 'os' repo and 'updates' repo. While this is true for
+  # Fedora repositories too (fedora.repo, fedora-updates.repo),
+  # in Fedora the content of both of these repos is incremental, while
+  # in CentOS ... excremental? :D What I mean is that 'os' doesn't contain
+  # /usr/bin/python while 'updates' does, and there's more examples like this.
+  sql = SqlHandler(glob.glob(os.path.join(base, 'files*.sqlite')),
+                   glob.glob(os.path.join(base, 'primary*.sqlite')), 
+                   verbose=verbose)
+
+  if 'raw_includes' in request.form:
+    # raw request from the HTML form
+    # when in include mode we prepend include search paths before each element
+    include_mode = False if 'include_mode' not in request.form else True
+    includes = filter(None, request.form['raw_includes'].splitlines())
+    if include_mode:
+      # reuse these with feaders client search paths
+      prefixes = ['/usr/include', '/usr/include/python2.7', '/usr/include/python3.4m']
+      # combine the includes and prefixes
+      includes = [os.path.join(p, i) for i in includes for p in prefixes]
+    return '\n'.join(sql.process_includes(arch, includes))
+  elif 'includes' in request.form:
+    # JSON request, includes contains an array of include files to search for
+    includes = json.loads(request.form['includes'])
+    return json.dumps(sql.process_includes(arch, includes))
+  else:
+    return "Error, case unhandled"
+
+@app.route("/add_cache")
+def add_cache():
+  return render_template('add_cache.html')
+
+@app.route("/refresh_cache")
+def refresh_cache():
+  print('started caching')
+  rh = RepoHandler('cache/')
+
+  # get cache arguments
+  arch, name, release = get_args()
+  typ = RepoType.from_string(
+    request.args.get('type', 'fedora')
+  )
+
+  # create cache
+  caches = rh.create_repo_cache(
+    name, release, arch, typ
+  )
+
+  if app.debug:
+    # print the created caches in debug mode
+    print("\n".join(caches))
+
+  return redirect("/")
+
+@app.route("/")
+def index():
+  seen, kv = set(), []
+  # find the unique caches that we can use for searching
+  for root, folder, files in os.walk('cache/'):
+    for f in files:
+      if f.startswith('primary') and f.endswith('sqlite'):
+        kvs = zip(('name', 'release', 'arch'), root.split('/')[1:4])
+        as_str = str(kvs)
+        if as_str not in seen:
+          seen.add(as_str)
+          kv.append(dict(kvs))
+  return render_template('index.html', cached=kv)
+
+if __name__ == "__main__":
+  app.run(debug=True, port=5000)
