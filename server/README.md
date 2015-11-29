@@ -27,3 +27,29 @@ $ curl 'localhost:5000/refresh_cache?arch=x86_64&name=fedora&release=23&type=fed
 <h1>Redirecting...</h1>
 <p>You should be redirected automatically to target URL: <a href="/">/</a>.  If not click the link.
 ```
+
+### Comparison
+
+`nokogiri` with and without server :
+
+```
+real    0m1.306s
+user    0m0.923s
+sys     0m0.045s
+
+real    3m48.845s
+user    3m9.854s
+sys     0m17.853s
+```
+
+`Pillow` with and without server :
+
+```
+real    0m1.225s
+user    0m0.945s
+sys     0m0.040s
+
+real    1m43.552s
+user    1m31.689s
+sys     0m8.492s
+```
