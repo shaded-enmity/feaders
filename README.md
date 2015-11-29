@@ -18,6 +18,14 @@ $ ./feaders -r /path/to/project
 Which allows to eliminate includes relative to the root and also automatically searches for source/header files.
 Good choice of root will allow the system to eliminate more candidates, directories containing `configure.ac` or `CMakeList.txt` are good starting fit for this parameter, but this indeed depends on project structure and include path configuration.
 
+To use `feaders-server` for file resolution use this form:
+```bash
+$ ./feaders -f server_url -r /path/to/project
+```
+
+### Feaders-Server
+Description and rationale for this component can be found [in a separate document](http://github.com/shaded-enmity/feaders/tree/master/server). Long story short, it makes the lookup/search lighting fast.
+
 ### Example
 What headers are needed for compilation of `bcrypt` native extension for Ruby?
 
@@ -57,4 +65,12 @@ openjpeg-devel-0:1.5.1-14.fc22.x86_64
 libwebp-devel-0:0.4.4-1.fc22.x86_64
 python3-devel-0:3.4.2-6.fc22.x86_64
 lcms2-devel-0:2.7-1.fc22.x86_64
+```
+
+Using the `feaders-server` to lookup Ruby's `nokogiri` package:
+```bash
+$ ./feaders -f http://localhost:5000 -r ../nokogiri/
+libxslt-devel-0:1.1.28-11.fc23.x86_64
+memchan-devel-0:2.3-9.fc23.x86_64
+ruby-devel-0:2.2.3-44.fc24.x86_64
 ```
