@@ -211,8 +211,11 @@ class SqlHandler(object):
     return [p for q in queries for p in q.fetchall()]
 
   def _sql_fetchone(self, queries):
-    # fetch one unique result
-    return set([q.fetchone() for q in queries]).pop()
+    # fetch one unique non-NULL result
+    s = set(filter(None, [q.fetchone() for q in queries]))
+    if not s:
+      return None
+    return s.pop()
 
   def _create_connections(self, targets):
     # connect to all target databases
@@ -246,7 +249,6 @@ class SqlHandler(object):
     # sepatartor and figure out if we have an exact match
     pkg_ids_matched = [pi for pi in pkg_ids 
                         if ifile in pi[1].split('/')]
-
     if app.debug and self._verbose:
       # figure out the eliminated IDs from the last step
       eliminated = "\n".join([x[0] for x in (set(pkg_ids) - set(pkg_ids_matched))])
@@ -269,7 +271,7 @@ class SqlHandler(object):
       # return the package name as well as the include file that brought it in
       return "{} {}".format(self._format_package_nevra(nevra), include)
 
-    return self._format_package_nevra(nevra)
+    return self._format_package_nevra(nevra) if nevra else None
 
   def process_includes(self, arch, includes):
     # process multiple includes and return unique results
