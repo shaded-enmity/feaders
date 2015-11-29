@@ -346,7 +346,8 @@ def index():
   for root, folder, files in os.walk('cache/'):
     for f in files:
       if f.startswith('primary') and f.endswith('sqlite'):
-        kvs, as_str = zip(('name', 'release', 'arch'), root.split('/')[1:4]), str(kvs)
+        kvs = zip(('name', 'release', 'arch'), root.split('/')[1:4])
+        as_str = str(kvs)
         if as_str not in seen:
           seen.add(as_str)
           kv.append(dict(kvs))
