@@ -7,7 +7,7 @@ from feader.utils import endswith
 _ignored = set(json.load(open('glibc-ignored', 'r')))
 _include = re.compile(r'^\s*#\s*include\s*[<"]+(.*?)[>"]+', re.MULTILINE)
 _search_paths = []
-_files = ['h', 'c', 'hpp', 'cpp']
+_files = ['.h', '.c', '.hpp', '.cpp']
 
 # paths should be hardcoded
 for pref in ['/usr/include', '/usr/include/python*']:
