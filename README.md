@@ -26,6 +26,14 @@ $ ./feaders -f server_url -r /path/to/project
 ### Feaders-Server
 Description and rationale for this component can be found [in a separate document](http://github.com/shaded-enmity/feaders/tree/master/server). Long story short, it makes the lookup/search lighting fast.
 
+### Installation
+
+List of needed packages:
+```
+python-requests
+librepo
+```
+
 ### Example
 What headers are needed for compilation of `bcrypt` native extension for Ruby?
 

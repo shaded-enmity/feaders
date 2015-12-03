@@ -23,6 +23,9 @@ parser.add_argument('files', type=argparse.FileType('r'), nargs='?')
 args = parser.parse_args()
 
 local = set()
+if type(args.files) is not list:
+  args.files = [args.files]
+
 if not args.files:
   if args.verbose:
     print("-> probing root '{}'".format(args.root))
