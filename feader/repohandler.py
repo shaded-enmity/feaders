@@ -10,12 +10,12 @@ def callback(data, total_to_download, downloaded):
   if total_to_download <= 0:
     return
   completed = int(downloaded / (total_to_download / PROGRESSBAR_LEN))
-  sys.stdout.write("[%s%s] %8s/%8s (%s)\r" % ('#'*completed, 
+  sys.stderr.write("[%s%s] %8s/%8s (%s)\r" % ('#'*completed, 
                                    '-'*(PROGRESSBAR_LEN-completed), 
                                    int(downloaded), 
                                    int(total_to_download), 
                                    data))
-  sys.stdout.flush()
+  sys.stderr.flush()
 
 class RepoType(object):
   (Invalid, Fedora, Centos) = [0, 1, 2]
@@ -75,7 +75,7 @@ class RepoHandler(object):
     if db.endswith('.xz'):
       return self._handle_suffix(db, path, '.xz', ["xz", "-d", db], save_as)
     elif db.endswith('.bz2'):
-      return self._handle_suffix(db, path, '.bz2', ["bzip", "-d", db], save_as)
+      return self._handle_suffix(db, path, '.bz2', ["bzip2", "-d", db], save_as)
     else:
       raise ValueError("_cache_db: unknown suffix: {}".format(db))
 
@@ -102,7 +102,7 @@ class RepoHandler(object):
       h.perform(r)
     except librepo.LibrepoException as e:
       rc, msg, general_msg  = e
-      print "Error: %s" % msg
+      print("Error: %s" % msg)
 
     # read back the results
     data = r.getinfo(librepo.LRR_YUM_REPO)
@@ -129,7 +129,7 @@ class RepoHandler(object):
         h.perform(r)
       except librepo.LibrepoException as e:
         rc, msg, general_msg  = e
-        print "Error: %s" % msg
+        print("Error: %s" % msg)
 
       # read back the results
       data = r.getinfo(librepo.LRR_YUM_REPO)
