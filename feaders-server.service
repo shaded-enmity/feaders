@@ -1,0 +1,11 @@
+[Unit]
+Description=feaders-server component of Fedora headers searcher
+Documentation=man:feaders-server
+After=network.service
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/feaders-server --drop-priv=feaders
+
+[Install]
+WantedBy=multi-user.target
