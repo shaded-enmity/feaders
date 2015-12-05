@@ -7,7 +7,7 @@ setup(
     scripts = ['feaders', 'feaders-server'],
     install_requires = ['requests', 'flask'],
     package_data = {
-	'': ['LICENSE', 'README.md', 'VERSION']
+	    '': ['LICENSE', 'README.md', 'VERSION']
     },
     author = 'Pavel Odvody',
     author_email = 'podvody@redhat.com',

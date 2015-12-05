@@ -4,6 +4,7 @@
 from flask import Flask, redirect, request, render_template, url_for
 from feader.repohandler import Repositories, RepoType, RepoHandler
 from feader.sqlhandler import SqlHandler
+from feader.enums import PREFIXES
 import glob
 import json
 import os
@@ -40,10 +41,8 @@ def get_includes():
     include_mode = False if 'include_mode' not in request.form else True
     includes = filter(None, request.form['raw_includes'].splitlines())
     if include_mode:
-      # reuse these with feaders client search paths
-      prefixes = ['/usr/include', '/usr/include/python2.7', '/usr/include/python3.4m']
       # combine the includes and prefixes
-      includes = [os.path.join(p, i) for i in includes for p in prefixes]
+      includes = [os.path.join(p, i) for i in includes for p in PREFIXES]
     return '\n'.join(sql.process_includes(arch, includes))
   elif 'includes' in request.form:
     # JSON request, includes contains an array of include files to search for

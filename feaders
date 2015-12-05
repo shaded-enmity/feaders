@@ -3,27 +3,24 @@
 # /ˈfed.ərs/ Pavel Odvody <podvody@redhat.com> 2015 - MIT License
 import argparse, glob, json, os, re, requests, subprocess, sys
 from feader.utils import endswith
+from feader.enums import PREFIXES, GLIBC_IGNORES
 
-_ignored = set(json.load(open('glibc-ignored', 'r')))
 _include = re.compile(r'^\s*#\s*include\s*[<"]+(.*?)[>"]+', re.MULTILINE)
-_search_paths = []
+_search_paths = PREFIXES
 _files = ['.h', '.c', '.hpp', '.cpp']
-
-# paths should be hardcoded
-for pref in ['/usr/include', '/usr/include/python*']:
-  for glb in glob.glob(pref):
-    _search_paths.append(glb)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-r', '--root', help='root directory for the files')
 parser.add_argument('-a', '--arch', default="x86_64")
 parser.add_argument('-v', '--verbose', action='store_true')
 parser.add_argument('-f', '--feaders-server', dest='server', help='feaders server to use for file resolution')
-parser.add_argument('files', type=argparse.FileType('r'), nargs='?')
+# this fails for projects with > 1024 files because of ulimit
+#parser.add_argument('files', type=argparse.FileType('r'), nargs='?')
+parser.add_argument('files', type=str, nargs='?')
 args = parser.parse_args()
 
 local = set()
-if type(args.files) is not list:
+if args.files and type(args.files) is not list:
   args.files = [args.files]
 
 if not args.files:
@@ -35,29 +32,27 @@ if not args.files:
       if endswith(file, _files):
         path = os.path.join(root, file)
         local.add(os.path.relpath(path, args.root))
-        args.files.append(open(path, 'r'))
+        args.files.append(path)
 
 eliminated = set()
 includes = set()
-for fp in args.files:
-  for m in _include.finditer(fp.read()):
-    inc = m.group(1)
-    if inc in local or inc in _ignored:
-      if inc not in eliminated:
-        if args.verbose:
-          print("=> include '{}' found in '{}' or is a libc include".format(inc, args.root))
-        eliminated.add(inc)
-    else:
-      includes.add(inc)
+for f in args.files:
+  with open(f, 'r') as fp:
+    for m in _include.finditer(fp.read()):
+      inc = m.group(1)
+      if inc in local or inc in GLIBC_IGNORES:
+        if inc not in eliminated:
+          if args.verbose:
+            print("=> include '{}' found in '{}' or is a libc include".format(inc, args.root))
+          eliminated.add(inc)
+      else:
+        includes.add(inc)
 
 if args.verbose:
   print("-> elimination statistics:")
   print("==> original files: {}".format(len(args.files)))
   print("==> eliminated includes: {}".format(len(eliminated)))
   print("==> searched includes: {}".format(len(includes)))
-  duplicate = len(args.files) - (len(eliminated) + len(includes))
-  print("==> duplicate includes: {}".format(duplicate))
-  print("==> ratio: {}".format(float(len(eliminated) + duplicate)/len(includes)))
 
 packages = set()
 
@@ -98,7 +93,7 @@ else:
           "--arch", args.arch,
           "--file", os.path.join(prefix, include)])
       except subprocess.CalledProcessError as cpe:
-        print cpe.message
+        print(cpe.message)
         sys.exit(1)
 
       if out.strip():
