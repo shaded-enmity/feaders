@@ -127,11 +127,6 @@ def __drop_privilege(to, pidfile):
   else:
     uid = getpwuid(uid)
 
-  if os.path.exists(pidfile):
-    # pidfile must not exist
-    print("Pidfile '{}' exists".format(pidfile))
-    sys.exit(1)
-
   with open(pidfile, 'w+') as p:
     # own pidfile and cache folder as target user
     os.chown(pidfile, uid.pw_uid, uid.pw_gid)
