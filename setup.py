@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 setup(
     name = 'feaders',
-    version = '0.1.0',
+    version = '0.1.2',
     packages = find_packages(),
     scripts = ['feaders', 'feaders-server'],
     install_requires = ['requests', 'flask'],
