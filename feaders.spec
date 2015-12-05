@@ -4,7 +4,7 @@
 %global service_user %{pypi_name}
 
 Name:           python-%{pypi_name}
-Version:        0.1.0
+Version:        0.1.1
 Release:        1%{?dist}
 Summary:        Fedora headers searcher
 
@@ -19,10 +19,8 @@ Requires:       librepo
 Requires:       python-requests
 Requires:       python-flask
 Requires(pre): /usr/sbin/useradd, /usr/bin/getent
-Requires(postun): /usr/sbin/userdel
 
 %pre
-/usr/bin/getent group %{service_user} || /usr/sbin/groupadd -r %{service_user}
 /usr/bin/getent passwd %{service_user} || /usr/sbin/useradd -r -d /usr/bin -s /sbin/nologin %{service_user}
 
 %description
@@ -41,6 +39,8 @@ rm -rf %{pypi_name}.egg-info
 %install
 %{__python2} setup.py install --skip-build --root %{buildroot}
 mkdir -p %{buildroot}%{_unitdir}/
+mkdir -p %{buildroot}%{_datadir}/feaders/
+cp -R server/* %{buildroot}%{_datadir}/feaders/
 cp feaders-server.service %{buildroot}%{_unitdir}/
 
 %files
@@ -48,6 +48,7 @@ cp feaders-server.service %{buildroot}%{_unitdir}/
 %{_unitdir}/feaders-server.service
 %{_bindir}/feaders
 %{_bindir}/feaders-server
+%{_datadir}/feaders
 %{python2_sitelib}/feader
 %{python2_sitelib}/%{pypi_name}-%{version}-py?.?.egg-info
 

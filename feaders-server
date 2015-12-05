@@ -12,7 +12,10 @@ import json
 import os
 import sys
 
-app = Flask(__name__, template_folder='server/templates', static_folder='server/static')
+app = Flask(__name__, 
+            template_folder='/usr/share/feaders/templates', 
+            static_folder='/usr/share/feaders/static'
+      )
 
 def get_args():
   arch = request.args.get('arch', Repositories.DEFAULT_ARCH)
@@ -105,45 +108,61 @@ def __ensure_cache_folder(folder):
     except OSError as e:
       if e.errno == os.errno.EACCES:
         print('permission denied for {}'.format(e.filename))
-      results.append(e.errno == os.errno.EEXIST)
+      results.append(e.errno == os.errno.EEXIST and os.path.isdir(e.filename))
   return all(results)
 
-if __name__ == "__main__":
-  ap = argparse.ArgumentParser()
-  ap.add_argument('-c', '--cache-folder', default=CACHE_FOLDER, help='path to cache folder')
-  ap.add_argument('-d', '--drop-priv', default=False, help='drop privileges to this UID', nargs='?', const=False)
-  args = ap.parse_args()
+def __drop_privilege(to, pidfile):
+  uid, numeric = to, False
 
-  CACHE_FOLDER = args.cache_folder
-  if not __ensure_cache_folder(CACHE_FOLDER):
-    print("Cache folder inaccessible: {}".format(CACHE_FOLDER))
+  # try convert to numeric
+  try:
+    uid = int(to, 10)
+    numeric = True
+  except:
+    pass
+
+  # get pw structure
+  if not numeric:
+    uid = getpwnam(uid)
+  else:
+    uid = getpwuid(uid)
+
+  if os.path.exists(pidfile):
+    # pidfile must not exist
+    print("Pidfile '{}' exists".format(pidfile))
     sys.exit(1)
 
-  if args.drop_priv:
-    uid, numeric = args.drop_priv, False
-
-    # try convert to numeric
-    try:
-      uid = int(args.drop_priv, 10)
-      numeric = True
-    except:
-      pass
-
-    # get pw structure
-    if not numeric:
-      uid = getpwnam(uid)
-    else:
-      uid = getpwuid(uid)
-
+  with open(pidfile, 'w+') as p:
+    # own pidfile and cache folder as target user
+    os.chown(pidfile, uid.pw_uid, uid.pw_gid)
     os.chown(CACHE_FOLDER, uid.pw_uid, uid.pw_gid)
 
-    os.setgroups([])
+    # set {e}uid/{e}gid
     os.setgid(uid.pw_gid)
     os.setegid(uid.pw_gid)
     os.setuid(uid.pw_uid)
     os.seteuid(uid.pw_uid)
 
-    if os.fork() > 0:
+    # quit parent ASAP
+    pid = os.fork()
+    if pid > 0:
+      p.write(str(pid))
       sys.exit(0)
 
-  app.run(debug=True, port=5000)
+if __name__ == "__main__":
+  ap = argparse.ArgumentParser()
+  ap.add_argument('-c', '--cache-folder', default=CACHE_FOLDER, help='path to cache folder')
+  ap.add_argument('-p', '--pidfile', default='/var/run/feaders-server.pid', help='path to pid file')
+  ap.add_argument('-d', '--drop-priv', default=False, help='drop privileges to this user/uid', nargs='?', const=False)
+  args = ap.parse_args()
+
+  CACHE_FOLDER = args.cache_folder
+
+  if not __ensure_cache_folder(CACHE_FOLDER):
+    print("Cache folder inaccessible: {}".format(CACHE_FOLDER))
+    sys.exit(1)
+
+  if args.drop_priv:
+    __drop_privilege(args.drop_priv, args.pidfile)
+
+  app.run(debug=True, port=5000, host='0.0.0.0')

@@ -5,6 +5,7 @@ After=network.service
 
 [Service]
 Type=forking
+PIDFile=/var/run/feaders-server.pid
 ExecStart=/usr/bin/feaders-server --drop-priv=feaders
 
 [Install]
