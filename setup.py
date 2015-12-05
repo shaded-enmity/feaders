@@ -11,8 +11,8 @@ setup(
     },
     author = 'Pavel Odvody',
     author_email = 'podvody@redhat.com',
-    description = '',
+    description = 'Feaders is set of tools for searching for devel libraries in Fedora repositories by automatically scanning source/header files for includes',
     license = 'MIT',
-    keywords = '',
+    keywords = 'header rpm devel search',
     url = 'https://github.com/shaded-enmity/feaders'
 )
