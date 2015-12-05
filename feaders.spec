@@ -9,12 +9,13 @@ Release:        1%{?dist}
 Summary:        Fedora headers searcher
 
 License:        MIT
-URL:            https://github.com/shaded-enmity/feaders
-Source0:        %{url}/archive/%{version}.tar.gz
+URL:            https://codeload.github.com/shaded-enmity/feaders
+Source0:        %{url}/tar.gz/%{version}
 BuildArch:      noarch
  
 BuildRequires:  python2-devel
  
+Requires:       librepo
 Requires:       python-requests
 Requires:       python-flask
 Requires(pre): /usr/sbin/useradd, /usr/bin/getent
@@ -25,7 +26,7 @@ Requires(postun): /usr/sbin/userdel
 /usr/bin/getent passwd %{service_user} || /usr/sbin/useradd -r -d /usr/bin -s /sbin/nologin %{service_user}
 
 %description
-Packa provides CLI for fast resolution of included files
+Package provides CLI for fast resolution of included files
 in project path, and Server part that can be used to significantly
 speed up the search via querying the repository database directly.
 
@@ -36,17 +37,18 @@ rm -rf %{pypi_name}.egg-info
 
 %build
 %{__python2} setup.py build
-cp feaders-server.service  %{_unitdir}/
 
 %install
 %{__python2} setup.py install --skip-build --root %{buildroot}
+mkdir -p %{buildroot}%{_unitdir}/
+cp feaders-server.service %{buildroot}%{_unitdir}/
 
 %files
 %doc 
 %{_unitdir}/feaders-server.service
 %{_bindir}/feaders
 %{_bindir}/feaders-server
-%{python2_sitelib}/%{pypi_name}
+%{python2_sitelib}/feader
 %{python2_sitelib}/%{pypi_name}-%{version}-py?.?.egg-info
 
 %changelog
