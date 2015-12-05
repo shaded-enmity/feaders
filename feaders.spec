@@ -9,8 +9,8 @@ Release:        1%{?dist}
 Summary:        Fedora headers searcher
 
 License:        MIT
-URL:            http://github.com/shaded-enmity/feaders
-Source0:        %{url}/releases/%{pypi_name}/%{version}.tgz
+URL:            https://github.com/shaded-enmity/feaders
+Source0:        %{url}/archive/%{version}.tar.gz
 BuildArch:      noarch
  
 BuildRequires:  python2-devel
