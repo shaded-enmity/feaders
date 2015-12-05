@@ -4,7 +4,7 @@
 %global service_user %{pypi_name}
 
 Name:           python-%{pypi_name}
-Version:        0.1.2
+Version:        0.1.3
 Release:        1%{?dist}
 Summary:        Fedora headers searcher
 
