@@ -7,7 +7,7 @@ def check_auth(username, password):
     password combination is valid.
     """
     with open(AUTH_PATH, 'r') as fp:
-        authinfos = [line.split(':') for line in fp.readlines()]
+        authinfos = [line.strip().split(':') for line in fp.readlines()]
         for auth in authinfos:
             if auth[0] == username and auth[1] == password:
                 return True
