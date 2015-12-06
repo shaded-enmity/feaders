@@ -4,7 +4,7 @@
 %global service_user %{pypi_name}
 
 Name:           python-%{pypi_name}
-Version:        0.1.3
+Version:        0.2.0
 Release:        1%{?dist}
 Summary:        Fedora headers searcher
 
@@ -38,13 +38,17 @@ rm -rf %{pypi_name}.egg-info
 
 %install
 %{__python2} setup.py install --skip-build --root %{buildroot}
+mkdir -p %{buildroot}%{_sysconfdir}/
 mkdir -p %{buildroot}%{_unitdir}/
 mkdir -p %{buildroot}%{_datadir}/feaders/
 cp -R server/* %{buildroot}%{_datadir}/feaders/
 cp feaders-server.service %{buildroot}%{_unitdir}/
+cp feaders.env %{buildroot}%{_sysconfdir}/
 
 %files
 %doc 
+%attr(-, feaders, feaders) %{_sysconfdir}/feaders.env
+%config %{_sysconfdir}/feaders.env
 %{_unitdir}/feaders-server.service
 %{_bindir}/feaders
 %{_bindir}/feaders-server
@@ -53,5 +57,5 @@ cp feaders-server.service %{buildroot}%{_unitdir}/
 %{python2_sitelib}/%{pypi_name}-%{version}-py?.?.egg-info
 
 %changelog
-* Sat Dec 05 2015 Pavel Odvody - 0.1.2-1
+* Sat Dec 05 2015 Pavel Odvody - 0.2.0-1
 - Initial package.

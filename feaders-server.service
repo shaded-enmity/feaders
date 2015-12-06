@@ -5,8 +5,9 @@ After=network.service
 
 [Service]
 Type=forking
+EnvironmentFile=-/etc/feaders.env
 PIDFile=/var/run/feaders-server.pid
-ExecStart=/usr/bin/feaders-server --drop-priv=feaders
+ExecStart=/usr/bin/feaders-server -p $FEADERS_SERVER_PORT -a $FEADERS_SERVER_ADDRESS --drop-priv=feaders
 
 [Install]
 WantedBy=multi-user.target

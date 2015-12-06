@@ -147,7 +147,9 @@ def __drop_privilege(to, pidfile):
 if __name__ == "__main__":
   ap = argparse.ArgumentParser()
   ap.add_argument('-c', '--cache-folder', default=CACHE_FOLDER, help='path to cache folder')
-  ap.add_argument('-p', '--pidfile', default='/var/run/feaders-server.pid', help='path to pid file')
+  ap.add_argument('-i', '--pidfile', default='/var/run/feaders-server.pid', help='path to pid file')
+  ap.add_argument('-p', '--port', default=5000, type=int, help='port at which to listen')
+  ap.add_argument('-a', '--address', default='0.0.0.0', help='address at which to listen')
   ap.add_argument('-d', '--drop-priv', default=False, help='drop privileges to this user/uid', nargs='?', const=False)
   args = ap.parse_args()
 
@@ -160,4 +162,4 @@ if __name__ == "__main__":
   if args.drop_priv:
     __drop_privilege(args.drop_priv, args.pidfile)
 
-  app.run(debug=True, port=5000, host='0.0.0.0')
+  app.run(debug=True, port=args.port, host=args.address)
