@@ -5,6 +5,7 @@ from flask import Flask, redirect, request, render_template, url_for
 from feader.repohandler import Repositories, RepoType, RepoHandler
 from feader.sqlhandler import SqlHandler
 from feader.enums import PREFIXES, CACHE_FOLDER
+from feader.htauth import requires_auth
 from pwd import getpwnam, getpwuid
 import argparse
 import glob
@@ -58,10 +59,12 @@ def get_includes():
     return "Error, case unhandled"
 
 @app.route("/add_cache")
+@requires_auth
 def add_cache():
   return render_template('add_cache.html')
 
 @app.route("/refresh_cache")
+@requires_auth
 def refresh_cache():
   print('started caching')
   rh = RepoHandler(CACHE_FOLDER)

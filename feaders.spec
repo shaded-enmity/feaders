@@ -14,6 +14,7 @@ Source0:        %{url}/tar.gz/%{version}
 BuildArch:      noarch
  
 BuildRequires:  python2-devel
+BuildRequires:  systemd
  
 Requires:       librepo
 Requires:       python-requests
@@ -44,11 +45,14 @@ mkdir -p %{buildroot}%{_datadir}/feaders/
 cp -R server/* %{buildroot}%{_datadir}/feaders/
 cp feaders-server.service %{buildroot}%{_unitdir}/
 cp feaders.env %{buildroot}%{_sysconfdir}/
+cp feaders.auth %{buildroot}%{_sysconfdir}/
 
 %files
 %doc 
-%attr(-, feaders, feaders) %{_sysconfdir}/feaders.env
+%attr(600, feaders, feaders) %{_sysconfdir}/feaders.env
+%attr(600, feaders, feaders) %{_sysconfdir}/feaders.auth
 %config %{_sysconfdir}/feaders.env
+%config %{_sysconfdir}/feaders.auth
 %{_unitdir}/feaders-server.service
 %{_bindir}/feaders
 %{_bindir}/feaders-server

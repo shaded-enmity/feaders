@@ -3,3 +3,5 @@ GLIBC_IGNORES = set(["_G_config.h","a.out.h","aio.h","aliases.h","alloca.h","ar.
 PREFIXES = set(['/usr/include', '/usr/include/python2.7', '/usr/include/python3.4m'])
 
 CACHE_FOLDER = '/var/cache/feaders'
+
+AUTH_PATH = '/etc/feaders.auth'
