@@ -3,6 +3,16 @@
 
 Fedora headers searcher is a tool that analyzes `#include` directives in C/C++ header/source files and tries to map them to a Fedora RPM package that provides such file. Feaders uses `DNF` and it's `repoquery` plugin to search entire repository for provided files. The current approach for the search is rather brute-force, that being said, there's a lot of space for improvement and the performance so far has not been great.
 
+### Installation
+
+You can grab a package for your Fedora (22/23/Rawhide) from my COPR:
+
+```
+https://copr.fedoraproject.org/coprs/podvody/Feaders/
+```
+
+If you want to quickly test how/if it works, you can simply clone the repo and start working with the `feaders` executable directly.
+
 ### Usage
 
 ```bash
