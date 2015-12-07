@@ -4,7 +4,7 @@
 %global service_user %{pypi_name}
 
 Name:           python-%{pypi_name}
-Version:        0.2.0
+Version:        0.2.2
 Release:        1%{?dist}
 Summary:        Fedora headers searcher
 
@@ -61,5 +61,5 @@ cp feaders.auth %{buildroot}%{_sysconfdir}/
 %{python2_sitelib}/%{pypi_name}-%{version}-py?.?.egg-info
 
 %changelog
-* Sat Dec 05 2015 Pavel Odvody - 0.2.0-1
+* Sat Dec 05 2015 Pavel Odvody - 0.2.2-1
 - Initial package.
