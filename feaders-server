@@ -130,6 +130,10 @@ def __drop_privilege(to, pidfile):
   else:
     uid = getpwuid(uid)
 
+  if uid.pw_uid == 0:
+    print('Can\'t drop privilege to root')
+    sys.exit(1)
+
   with open(pidfile, 'w+') as p:
     # own pidfile and cache folder as target user
     os.chown(pidfile, uid.pw_uid, uid.pw_gid)
